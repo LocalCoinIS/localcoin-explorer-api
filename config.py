@@ -1,16 +1,16 @@
 import os
 
 
-WEBSOCKET_URL = os.environ.get('WEBSOCKET_URL', "ws://localhost:8090/ws")
-# a connection to a bitshares full node
-FULL_WEBSOCKET_URL = os.environ.get('FULL_WEBSOCKET_URL', "ws://88.99.145.10:9999/ws")
+WEBSOCKET_URL = os.environ.get('WEBSOCKET_URL', "ws://localhost:8091")
+# a connection to a localcoin full node
+FULL_WEBSOCKET_URL = os.environ.get('FULL_WEBSOCKET_URL', "wss://moscow.localcoin.is")
 
 # a connection to Elastic Search.
 ELASTICSEARCH = {
     #'hosts': os.environ.get('ELASTICSEARCH_URL', 'http://148.251.10.231:5005/').split(','), # oxarbitrage
-    'hosts': os.environ.get('ELASTICSEARCH_URL', 'http://bts-es.clockwork.gr:5000').split(','), # clockwork
-    'user': os.environ.get('ELASTICSEARCH_USER', None),
-    'password': os.environ.get('ELASTICSEARCH_USER', None)
+    'hosts': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200').split(','), # clockwork
+    'user': os.environ.get('ELASTICSEARCH_USER', none),
+    'password': os.environ.get('ELASTICSEARCH_PASSWORD', none)
 }
 
 
@@ -35,7 +35,7 @@ PROFILER = {
     'password': os.environ.get('PROFILER_PASSWORD', None),
 }
 
-CORE_ASSET_SYMBOL = 'BTS'
+CORE_ASSET_SYMBOL = 'LLC'
 CORE_ASSET_ID = '1.3.0'
 
 TESTNET = 0 # 0 = not in the testnet, 1 = testnet

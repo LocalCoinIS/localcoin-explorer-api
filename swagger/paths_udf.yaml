@@ -1,7 +1,7 @@
 paths:
   "/config":
     get:
-      description: Get bitshares chart data configuration
+      description: Get localcoin chart data configuration
       operationId: api.udf.get_config
       responses:
         '200':

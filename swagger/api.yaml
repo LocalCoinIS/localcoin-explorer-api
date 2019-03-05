@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
-  title: BitShares Explorer API
-  description: Exposes BitShares calls needed to explore the blockchain
+  title: Localcoin Explorer API
+  description: Exposes Localcoin calls needed to explore the blockchain
   version: '1'
 schemes:
   - http
