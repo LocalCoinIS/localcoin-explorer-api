@@ -1,7 +1,7 @@
 paths:
   "/config":
     get:
-      description: Get localcoin chart data configuration
+      description: Get localCoin chart data configuration
       operationId: api.udf.get_config
       responses:
         '200':
