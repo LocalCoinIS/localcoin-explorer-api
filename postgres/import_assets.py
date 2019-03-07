@@ -118,7 +118,7 @@ for x in range(0, len(all_assets)):
 
 
 # with updated volume, add stats
-query = "select sum(volume) from assets WHERE aname!='BTS'"
+query = "select sum(volume) from assets WHERE aname!='LLC'"
 cur.execute(query)
 results = cur.fetchone()
 volume = results[0]
@@ -149,7 +149,7 @@ holders = api.explorer.get_asset_holders_count(config.CORE_ASSET_ID)
 
 mcap = int(current_supply)
 
-query = "INSERT INTO assets (aname, aid, price, volume, mcap, type, current_supply, holders, wallettype) VALUES('BTS', '1.3.0', '1', %s, %s, %s, %s, %s, %s)"
+query = "INSERT INTO assets (aname, aid, price, volume, mcap, type, current_supply, holders, wallettype) VALUES('LLC', '1.3.0', '1', %s, %s, %s, %s, %s, %s)"
 cur.execute(query, (str(volume), str(mcap), 'Core Token', str(current_supply), str(holders), ''))
 con.commit()
 

@@ -8,9 +8,9 @@ def get_account_history(account_id=None, operation_type=None, from_=0, size=10,
                         from_date='2015-10-10', to_date='now', sort_by='-block_data.block_time',
                         type='data', agg_field='operation_type'):
     if type != "data":
-        s = Search(using=es, index="bitshares-*")
+        s = Search(using=es, index="graphene-*")
     else:
-        s = Search(using=es, index="bitshares-*", extra={"size": size, "from": from_})
+        s = Search(using=es, index="graphene-*", extra={"size": size, "from": from_})
 
     q = Q()
 
@@ -35,7 +35,7 @@ def get_account_history(account_id=None, operation_type=None, from_=0, size=10,
 
 
 def get_single_operation(operation_id):
-    s = Search(using=es, index="bitshares-*", extra={"size": 1})
+    s = Search(using=es, index="graphene-*", extra={"size": 1})
     s.query = Q("match", account_history__operation_id=operation_id)
 
     response = s.execute()
@@ -47,7 +47,7 @@ def is_alive():
     find_string = datetime.utcnow().strftime("%Y-%m")
     from_date = (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d")
 
-    s = Search(using=es, index="bitshares-" + find_string)
+    s = Search(using=es, index="graphene-" + find_string)
     s.query = Q("range", block_data__block_time={'gte': from_date, 'lte': "now"})
     s.aggs.metric("max_block_time", "max", field="block_data.block_time")
 
@@ -84,7 +84,7 @@ def is_alive():
 
 
 def get_trx(trx, from_=0, size=10):
-    s = Search(using=es, index="bitshares-*", extra={"size": size, "from": from_})
+    s = Search(using=es, index="graphene-*", extra={"size": size, "from": from_})
     s.query = Q("match", block_data__trx_id=trx)
 
     response = s.execute()

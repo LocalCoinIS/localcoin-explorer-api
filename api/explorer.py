@@ -34,7 +34,7 @@ def _add_global_informations(response, ws_client):
     response["bts_market_cap"] = int(market_cap/100000000)
 
     if config.TESTNET != 1: # Todo: had to do something else for the testnet
-        btsBtcVolume = ws_client.request('database', 'get_24_volume', ["BTS", "OPEN.BTC"])
+        btsBtcVolume = ws_client.request('database', 'get_24_volume', ["LLC", "BTC"])
         response["quote_volume"] = btsBtcVolume["quote_volume"]
     else:
         response["quote_volume"] = 0
@@ -74,8 +74,7 @@ def get_operation_full(operation_id):
 def get_operation_full_elastic(operation_id):
     res = es_wrapper.get_single_operation(operation_id)
     operation = { 
-        "op": res[0]["operation_history"]["op_object"],
-        "op_type": res[0]["operation_type"],
+        "op": json.loads(res[0]["operation_history"]["op"]),
         "block_num": res[0]["block_data"]["block_num"], 
         "op_in_trx": res[0]["operation_history"]["op_in_trx"],
         "result": json.loads(res[0]["operation_history"]["operation_result"]), 
@@ -235,15 +234,15 @@ def get_workers():
     workers = bitshares_ws_client.request('database', 'get_objects', [ [ '1.14.{}'.format(i) for i in range(0, workers_count) ] ])
 
     # get the votes of worker 1.14.0 - refund 400k
-    refund400k = bitshares_ws_client.get_object("1.14.0")
-    thereshold =  int(refund400k["total_votes_for"])
+    #refund400k = bitshares_ws_client.get_object("1.14.0")
+    #thereshold =  int(refund400k["total_votes_for"])
 
     result = []
     for worker in workers:
         if worker:
             worker["worker_account_name"] = get_account_name(worker["worker_account"])
             current_votes = int(worker["total_votes_for"])
-            perc = (current_votes*100)/thereshold
+            perc = (current_votes*100)/28945815532168 #TODO: change to "thereshold" / changed for test run
             worker["perc"] = perc
             result.append([worker])
 
@@ -609,8 +608,7 @@ def get_account_history_pager_elastic(account_id, page):
     results = []
     for op in operations:
         results.append({
-            "op": j[n]["operation_history"]["op_object"],
-            "op_type": j[n]["operation_type"],
+            "op": json.loads(op["operation_history"]["op"]),
             "block_num": op["block_data"]["block_num"],
             "id": op["account_history"]["operation_id"],
             "op_in_trx": op["operation_history"]["op_in_trx"],
@@ -657,7 +655,7 @@ def get_dex_total_volume():
     results = cur.fetchone()
     cny_price = results[0]
 
-    query = "select sum(volume) from assets WHERE aname!='BTS'"
+    query = "select sum(volume) from assets WHERE aname!='LLC'"
     cur.execute(query)
     results = cur.fetchone()
     volume = results[0]
