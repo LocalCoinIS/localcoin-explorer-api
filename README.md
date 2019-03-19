@@ -173,7 +173,7 @@ Create username and database:
 Import schema:
 
     cd
-    wget https://raw.githubusercontent.com/oxarbitrage/explorer-api/master/postgres/schema.txt
+    wget https://raw.githubusercontent.com/LocalCoinIS/localcoin-explorer-api/master/postgres/schema.txt
     psql explorer < schema.txt
 
 Check your database tables were created:
