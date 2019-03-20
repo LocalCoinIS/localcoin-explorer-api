@@ -58,7 +58,7 @@ while len_result == 100:
 
 for x in range(0, len(all_assets)):
     size = len(all_assets[x]["result"])
-    print size
+    #print size
 
     for i in range(0, size):
         symbol = all_assets[x]["result"][i]["symbol"]
@@ -69,6 +69,7 @@ for x in range(0, len(all_assets)):
             data3 = api.explorer._get_asset(asset_id)
             current_supply = data3["current_supply"]
             precision = data3["precision"]
+            #price = data3["options"]["core_exchange_rate"]["base"]["amount"]
         except:
             price = 0
             continue
@@ -81,7 +82,7 @@ for x in range(0, len(all_assets)):
 
         if symbol == core_symbol:
             type_ = "Core Token"
-        elif all_assets[x]["result"][i]["issuer"] == "1.2.0":
+        elif all_assets[x]["result"][i]["issuer"] == "1.2.50":
             type_ = "SmartCoin"
         else:
             type_ = "User Issued"

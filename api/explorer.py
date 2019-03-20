@@ -151,8 +151,8 @@ def _get_asset(asset_id_or_name):
 
     return asset
 
-
 def get_asset_and_volume(asset_id):
+    asset_id = _ensure_asset_id(asset_id)
     asset = _get_asset(asset_id)
 
     con = psycopg2.connect(**config.POSTGRES)
@@ -665,7 +665,7 @@ def get_dex_total_volume():
     results = cur.fetchone()
     market_cap = results[0]
     con.close()
-
+    
     res = {"volume_bts": round(volume), "volume_usd": round(volume/usd_price), "volume_cny": round(volume/cny_price),
            "market_cap_bts": round(market_cap), "market_cap_usd": round(market_cap/usd_price), "market_cap_cny": round(market_cap/cny_price)}
 
