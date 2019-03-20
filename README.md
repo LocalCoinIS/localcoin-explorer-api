@@ -1,18 +1,18 @@
-# BitShares Explorer REST API
+# LocalCoin Explorer REST API
 
-BitShares Explorer REST API is the backend service of the BitShares explorer that retrieve the infotmation from the blockchain.  
+LocalCoin Explorer REST API is the backend service of the LocalCoin Explorer that retrieve the infotmation from the blockchain.  
 
-http://185.208.208.184:5000/apidocs/
+https://api.llc.is/apidocs/
 
 Index:
 
-- [BitShares Explorer REST API](#bitshares-explorer-rest-api)
+- [LocalCoin Explorer REST API](#bitshares-explorer-rest-api)
     - [Installation](#installation)
         - [Manual](#manual)
             - [Install ElasticSearch](#install-elasticsearch)
-            - [Install a BitShares node with requirements.](#install-a-bitshares-node-with-requirements)
+            - [Install a LocalCoin node with requirements.](#install-a-bitshares-node-with-requirements)
             - [Install and setup postgres.](#install-and-setup-postgres)
-            - [Install BitShares Explorer API and dependencies.](#install-bitshares-explorer-api-and-dependencies)
+            - [Install LocalCoin Explorer API and dependencies.](#install-bitshares-explorer-api-and-dependencies)
             - [Real Time ops grabber](#real-time-ops-grabber)
             - [Cronjobs](#cronjobs)
             - [Simple running](#simple-running)
@@ -30,11 +30,11 @@ The following procedure will work in Debian based Linux, more specifically the c
 
 ### Manual
 
-Step by step on everything needed to have your own BitShares Explorer API up and running for a production environment.
+Step by step on everything needed to have your own LocalCoin Explorer API up and running for a production environment.
 
 #### Install ElasticSearch
 
-For full elasticsearch installation and usage tutorial please go to: https://github.com/bitshares/bitshares-core/wiki/ElasticSearch-Plugin
+For full elasticsearch installation and usage tutorial please go to: https://github.com/LocalCoinis/LocalCoin-core/wiki/ElasticSearch-Plugin
 
 The following is a  quick installation guide for elasticsearch in Ubuntu.
 
@@ -57,24 +57,24 @@ Add an elasticsearch account to the system as the database can not run by root:
     Adding new user `elastic' (1000) with group `elastic' ...
     Creating home directory `/home/elastic' ...
     Copying files from `/etc/skel' ...
-    Enter new UNIX password: 
-    Retype new UNIX password: 
+    Enter new UNIX password:
+    Retype new UNIX password:
     passwd: password updated successfully
     Changing the user information for elastic
     Enter the new value, or press ENTER for the default
-            Full Name []: 
-            Room Number []: 
-            Work Phone []: 
-            Home Phone []: 
-            Other []: 
-    Is the information correct? [Y/n] 
-    root@oxarbitrage ~ # 
+            Full Name []:
+            Room Number []:
+            Work Phone []:
+            Home Phone []:
+            Other []:
+    Is the information correct? [Y/n]
+    root@oxarbitrage ~ #
 
 Download and run elasticsearch  database:
 
     root@oxarbitrage ~ # su elastic
     elastic@oxarbitrage:/root$ cd
-    elastic@oxarbitrage:~$ 
+    elastic@oxarbitrage:~$
     elastic@oxarbitrage:~$ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.4.zip
     elastic@oxarbitrage:~$ unzip elasticsearch-6.2.0.zip
     elastic@oxarbitrage:~$ cd elasticsearch-6.2.0
@@ -86,23 +86,23 @@ Stop the program with ctrl-c, daemonize and forget:
     elastic@oxarbitrage:~$ netstat -an | grep 9200
     tcp6       0      0 127.0.0.1:9200          :::*                    LISTEN     
     tcp6       0      0 ::1:9200                :::*                    LISTEN     
-    elastic@oxarbitrage:~$ 
+    elastic@oxarbitrage:~$
 
-#### Install a BitShares node with requirements.
+#### Install a LocalCoin node with requirements.
 
-This API backend connects to a BitShares `witness_node` to get data. This witness node must be configured with the following plugins:
+This API backend connects to a LocalCoin `witness_node` to get data. This witness node must be configured with the following plugins:
 
 - `market_history`   
-- `grouped_orders` 
+- `grouped_orders`
 - `elasticsearch`
 
-Additionally, the node must have `asset_api` and `orders_api` enabled(off by default). 
+Additionally, the node must have `asset_api` and `orders_api` enabled(off by default).
 
-First download and build `bitshares-core`:
+First download and build `LocalCoin-core`:
 
-    git clone https://github.com/bitshares/bitshares-core.git
-    cd bitshares-core/
-    
+    git clone https://github.com/LocalCoin/LocalCoin-core.git
+    cd LocalCoin-core/
+
     git submodule update --init --recursive
     cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo .
     make
@@ -172,8 +172,8 @@ Create username and database:
 
 Import schema:
 
-    cd 
-    wget https://raw.githubusercontent.com/oxarbitrage/explorer-api/master/postgres/schema.txt
+    cd
+    wget https://raw.githubusercontent.com/LocalCoinIS/localcoin-explorer-api/master/postgres/schema.txt
     psql explorer < schema.txt
 
 Check your database tables were created:
@@ -193,15 +193,15 @@ Check your database tables were created:
      public | referrers | table | postgres
      public | stats     | table | postgres
     (7 rows)
-    
+
     explorer=# select * from ops;
-     oid | oh | ath | block_num | trx_in_block | op_in_trx | datetime | account_id | account_name | op_type 
+     oid | oh | ath | block_num | trx_in_block | op_in_trx | datetime | account_id | account_name | op_type
     -----+----+-----+-----------+--------------+-----------+----------+------------+--------------+---------
     (0 rows)
-    
-    explorer=# 
 
-#### Install BitShares Explorer API and dependencies.
+    explorer=#
+
+#### Install LocalCoin Explorer API and dependencies.
 
 Install python and pip:
 
@@ -209,20 +209,20 @@ Install python and pip:
 
 Clone the app:
 
-    git clone https://github.com/oxarbitrage/bitshares-explorer-api
+    git clone https://github.com/LocalCoin/LocalCoin-explorer-api
     cd bitshares-explorer-api/
-    
+
 Install virtual environment and setup:
 
-    pip install virtualenv 
-    virtualenv -p python2 wrappers_env/ 
+    pip install virtualenv
+    virtualenv -p python2 wrappers_env/
     source wrappers_env/bin/activate
 
 Now you are in an isolated environment where you install dependencies with `pip install` without affecting anything else or creating version race conditions.
 You can also simply switch or recreate the environment by deleting the env folder that will be created in your working directory.
 
     root@oxarbitrage ~/bitshares #  source wrappers_env/bin/activate
-    (wrappers_env) root@oxarbitrage ~/bitshares # 
+    (wrappers_env) root@oxarbitrage ~/bitshares #
 
 Deactivate with:
 
@@ -235,7 +235,7 @@ Install dependencies in virtual env activated:
 
 To run the api, always need to have the full path to program in `PYTHONPATH` environment variable exported:
 
-`export PYTHONPATH=/root/bitshares/bitshares-explorer-api` 
+`export PYTHONPATH=/root/bitshares/bitshares-explorer-api`
 
 If you have errors in the output about websocket or psycopg you may need to also do:
 ```
@@ -244,7 +244,7 @@ apt-get install python-psycopg2
 ```
 
 If you see a problem similar to:
- 
+
  ```
  WARNING:connexion.options:The swagger_ui directory could not be found.
     Please install connexion with extra install: pip install connexion[swagger-ui]
@@ -262,7 +262,7 @@ First step to check if everything is correctly installed is by installing the re
 
 
 <strike>
-  
+
 Make sure you have `PYTHONPATH` set up and run the following command(can be in a `screen` session as the script will have to run permanently, can run in the background, can be added to init, etc:
 </strike>
 
@@ -281,12 +281,12 @@ Similar as postgres, it is expected that the cronjobs will not be needed in the 
 
 Add the following taks to cron file with `crontab -e`:
 
-    0 1 * * *  export PYTHONPATH=/root/bitshares/bitshares-explorer-api; /root/bitshares/wrappers/bin/python /root/bitshares/bitshares-explorer-api/postgres/import_holders.py > /tmp/cronlog_holders.txt 2>&1 
+    0 1 * * *  export PYTHONPATH=/root/bitshares/bitshares-explorer-api; /root/bitshares/wrappers/bin/python /root/bitshares/bitshares-explorer-api/postgres/import_holders.py > /tmp/cronlog_holders.txt 2>&1
     0 2 * * *  export PYTHONPATH=/root/bitshares/bitshares-explorer-api; /root/bitshares/wrappers/bin/python /root/bitshares/bitshares-explorer-api/postgres/import_assets.py > /tmp/cronlog_assets.txt 2>&1
     15 2 * * * export PYTHONPATH=/root/bitshares/bitshares-explorer-api; /root/bitshares/wrappers/bin/python /root/bitshares/bitshares-explorer-api/postgres/import_markets.py > /tmp/cronlog_markets.txt 2>&1
     30 2 * * * export PYTHONPATH=/root/bitshares/bitshares-explorer-api; /root/bitshares/wrappers/bin/python /root/bitshares/bitshares-explorer-api/postgres/import_referrers.py > /tmp/cronlog_refs.txt 2>&1
-                                                  
-    
+
+
 #### Simple running
 
 In order to simply test and run the backend api you can do:
@@ -296,7 +296,7 @@ In order to simply test and run the backend api you can do:
 
 Then go to apidocs with your server external address:
 
-http://185.208.208.184:5000/apidocs/
+https://api.llc.is/apidocs/
 
 #### Nginx and uwsgi
 
@@ -314,7 +314,7 @@ Create config file in /etc/nginx/sites-available:
 
     server {
         listen 5000;
-        server_name 185.208.208.184;
+        server_name 185.201.201.180;
         location / {
             include uwsgi_params;
             uwsgi_pass unix:/tmp/app.sock;
@@ -352,9 +352,9 @@ There are a lot of ways and application for this collection of API calls, at the
 
 ### Swagger
 
-http://185.208.208.184:5000/apidocs/
+https://api.llc.is/apidocs/
 
-Allows to make calls directly from that address by changing the parameters of the request and getting the results. This is very convenient to make quick calls to the blockchain looking for specific data. 
+Allows to make calls directly from that address by changing the parameters of the request and getting the results. This is very convenient to make quick calls to the blockchain looking for specific data.
 
 ### Profiler
 
@@ -367,10 +367,8 @@ Then you will be able to access profiling data at `http://localhost:5000/profile
 By default the profiler is not protected, to add basic authentification add username and password in `config.py` or using environment variables `PROFILER_USERNAME` and `PROFILER_PASSWORD`.
 
 
-### Open Explorer
+### LLC Explorer
 
-- http://open-explorer.io
-- http://bitshares-explorer.io/
-- http://bitshares-testnet.xyz
+- https://llc.is
 
 All versions of open-explorer uses this backend to get data.

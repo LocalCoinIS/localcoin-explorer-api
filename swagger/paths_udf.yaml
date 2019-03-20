@@ -44,19 +44,19 @@ paths:
           default: ''
           type: string
           required: false
-          description: UDF needs it, Bitshares done have it so not used
+          description: UDF needs it, LocalCoin done have it so not used
         - in: query
           name: exchange
           default: ''
           type: string
           required: false
-          description: UDF needs it, Bitshares done have it so not used
+          description: UDF needs it, LocalCoin done have it so not used
         - in: query
           name: limit
           default: ''
           type: string
           required: false
-          description: UDF needs it, Bitshares done have it so not used
+          description: UDF needs it, LocalCoin done have it so not used
       responses:
         '200':
           description: Found assets
