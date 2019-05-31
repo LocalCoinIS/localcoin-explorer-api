@@ -42,6 +42,7 @@ def _add_global_informations(response, ws_client):
     global_properties = ws_client.get_global_properties()
     response["commitee_count"] = len(global_properties["active_committee_members"])
     response["witness_count"] = len(global_properties["active_witnesses"])
+    response["activenode_count"] = len(global_properties["current_activenodes"])
 
     return response
 
@@ -308,6 +309,18 @@ def get_witnesses():
     result = result[::-1] # Reverse list.
     return result
 
+def get_activenodes():
+#    witnesses_count = bitshares_ws_client.request('database', 'get_witness_count', [])
+    activenodes = bitshares_ws_client.request('database', 'get_objects', [ ['1.16.{}'.format(w) for w in range(0, response["activenode_count"])] ])
+    result = []
+    for activenode in activenodes:
+        if activenode:
+            activenode["activenode_account_name"] = get_account_name(activenode["activenode_account"])
+            result.append([activenode])
+
+    result = sorted(result, key=lambda k: int(k[0]['activities_sent']))
+    result = result[::-1] # Reverse list.
+    return result
 
 
 def get_committee_members():
