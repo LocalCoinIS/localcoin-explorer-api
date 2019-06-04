@@ -513,6 +513,32 @@ paths:
         - api
         - witness
         - governance
+  "/get_activenodes":
+    get:
+      description: Get all active activenodes.
+      operationId: api.explorer.get_activenodes
+      responses:
+        '200':
+          description: All active activenodes in the network
+        '500':
+          description: Error processing parameters
+      tags:
+        - api
+        - activenode
+        - governance        
+  "/get_all_activenodes":
+    get:
+      description: Get all activenodes.
+      operationId: api.explorer.get_all_activenodes
+      responses:
+        '200':
+          description: All activenodes in the network
+        '500':
+          description: Error processing parameters
+      tags:
+        - api
+        - activenode
+        - governance            
   "/get_committee_members":
     get:
       description: Get all committee members.

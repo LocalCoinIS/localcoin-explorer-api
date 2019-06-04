@@ -1,4 +1,6 @@
 import datetime
+import time
+import pytz
 import json
 import psycopg2
 from services.bitshares_websocket_client import BitsharesWebsocketClient, client as bitshares_ws_client
@@ -42,7 +44,7 @@ def _add_global_informations(response, ws_client):
     global_properties = ws_client.get_global_properties()
     response["commitee_count"] = len(global_properties["active_committee_members"])
     response["witness_count"] = len(global_properties["active_witnesses"])
-    response["activenode_count"] = len(global_properties["current_activenodes"])
+    #response["activenode_count"] = len(global_properties["current_activenodes"])
 
     return response
 
@@ -310,18 +312,43 @@ def get_witnesses():
     return result
 
 def get_activenodes():
-#    witnesses_count = bitshares_ws_client.request('database', 'get_witness_count', [])
-    activenodes = bitshares_ws_client.request('database', 'get_objects', [ ['1.16.{}'.format(w) for w in range(0, response["activenode_count"])] ])
-    result = []
-    for activenode in activenodes:
-        if activenode:
-            activenode["activenode_account_name"] = get_account_name(activenode["activenode_account"])
-            result.append([activenode])
+	global_properties = bitshares_ws_client.get_global_properties()
+	activenode_count = len(global_properties["current_activenodes"])
+	activenodes = bitshares_ws_client.request('database', 'get_objects', [ [global_properties["current_activenodes"][w] for w in range(0, activenode_count)] ])
+	
+	now = str( datetime.datetime.now( pytz.timezone('Etc/GMT+0') ).time() )
+	x = time.strptime(now.split('.')[0],'%H:%M:%S')
+	seconds = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec).total_seconds()
 
-    result = sorted(result, key=lambda k: int(k[0]['activities_sent']))
-    result = result[::-1] # Reverse list.
-    return result
+	result = []
+	for activenode in activenodes:
+		if activenode:
+			activenode["activenode_account_name"] = get_account_name(activenode["activenode_account"])
+			activenode["activities_approx_count"] = round(((seconds)/2)/activenode_count) #localtime +2 hours
+			activenode["activities_aprrox_missed_activities"] = round((activenode["activities_approx_count"] - activenode["activities_sent"])/activenode["activities_approx_count"]*100)
+			result.append([activenode])
+	
+	return result	
+	
+def get_all_activenodes():
+	look_for_nodes = bitshares_ws_client.request('database', 'lookup_activenode_accounts', [0, 1000])
+	activenode_count = len(look_for_nodes)
+	activenodes = bitshares_ws_client.request('database', 'get_objects', [ [look_for_nodes[w][1] for w in range(0, activenode_count)] ])
+	
+	now = str( datetime.datetime.now( pytz.timezone('Etc/GMT+0') ).time() )
+	x = time.strptime(now.split('.')[0],'%H:%M:%S')
+	seconds = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec).total_seconds()
 
+	result = []
+	for activenode in activenodes:
+		if activenode:
+			activenode["activenode_account_name"] = get_account_name(activenode["activenode_account"])
+			activenode["activities_approx_count"] = round(((seconds)/2)/activenode_count) #localtime +2 hours
+			activenode["activities_aprrox_missed_activities"] = round((activenode["activities_approx_count"] - activenode["activities_sent"])/activenode["activities_approx_count"]*100)
+			result.append([activenode])	
+	
+	return activenodes	
+	
 
 def get_committee_members():
     committee_count = bitshares_ws_client.request('database', 'get_committee_count', [])
@@ -565,6 +592,10 @@ def get_last_network_transactions():
 def lookup_accounts(start):
     accounts = bitshares_ws_client.request('database', 'lookup_accounts', [start, 1000])
     return accounts
+	
+def lookup_activenodes(start):
+    activenodes = bitshares_ws_client.request('database', 'lookup_activenode_accounts', [start, 1000])
+    return activenodes	
 
 
 def lookup_assets(start):
