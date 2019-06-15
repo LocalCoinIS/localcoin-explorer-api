@@ -97,7 +97,7 @@ for x in range(0, len(all_assets)):
         print data["quote_volume"]
 
         try:
-            data2 = api.explorer.get_ticker(core_symbol, symbol)
+            data2 = api.explorer.get_market_ticker(core_symbol, symbol)
             price = data2["latest"]
             #print price
 

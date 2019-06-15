@@ -185,9 +185,32 @@ def get_block(block_num):
     return block
 
 
-def get_ticker(base, quote):
-    return bitshares_ws_client.request('database', 'get_ticker', [base, quote])
+def get_market_ticker(base, quote):
+	ticker = bitshares_ws_client.request('database', 'get_ticker', [base, quote])
+	
+	asset_base = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[base], 0])[0]
+	asset_quote = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
+	ticker["id"] = asset_base["id"].replace("1.3.", "") + "_" + asset_quote["id"].replace("1.3.", "")
+	
+	return ticker
 
+def get_ticker():
+
+	markets = get_most_active_markets()
+	
+	pairs = []
+	for market in markets:
+		pairs.append(market[1].split("/"))
+	
+	result = []
+	for pair in pairs:
+		result.append(get_market_ticker(pair[1], pair[0]))
+		
+	#asset_base = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[base], 0])[0]
+	#asset_quote = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
+	#ticker["id"] = asset_base["id"].replace("1.3.", "") + "_" + asset_quote["id"].replace("1.3.", "")
+	
+	return result
 
 def get_volume(base, quote):
     return bitshares_ws_client.request('database', 'get_24_volume', [base, quote])
@@ -332,8 +355,10 @@ def get_activenodes():
 	
 def get_all_activenodes():
 	look_for_nodes = bitshares_ws_client.request('database', 'lookup_activenode_accounts', [0, 1000])
-	activenode_count = len(look_for_nodes)
-	activenodes = bitshares_ws_client.request('database', 'get_objects', [ [look_for_nodes[w][1] for w in range(0, activenode_count)] ])
+	all_activenode_count = len(look_for_nodes)
+	global_properties = bitshares_ws_client.get_global_properties()
+	activenode_count = len(global_properties["current_activenodes"])
+	activenodes = bitshares_ws_client.request('database', 'get_objects', [ [look_for_nodes[w][1] for w in range(0, all_activenode_count)] ])
 	
 	now = str( datetime.datetime.now( pytz.timezone('Etc/GMT+0') ).time() )
 	x = time.strptime(now.split('.')[0],'%H:%M:%S')

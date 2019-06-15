@@ -58,7 +58,7 @@ for row in rows:
                     continue
 
                 try:
-                    data2 = api.explorer.get_ticker(symbol, row[1])
+                    data2 = api.explorer.get_market_ticker(symbol, row[1])
                     price = data2["latest"]
                     #print price
                 except:

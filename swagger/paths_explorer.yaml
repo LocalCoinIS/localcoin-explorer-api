@@ -275,10 +275,10 @@ paths:
       tags:
         - api
         - block
-  "/get_ticker":
+  "/get_market_ticker":
     get:
       description: Get ticker data for a market
-      operationId: api.explorer.get_ticker
+      operationId: api.explorer.get_market_ticker
       parameters:
         - in: query
           name: base
@@ -292,6 +292,18 @@ paths:
           type: string
           required: true
           description: Quote asset name or ID
+      responses:
+        '200':
+          description: Ticker data
+        '500':
+          description: Error processing parameters
+      tags:
+        - api
+        - market        
+  "/get_ticker":
+    get:
+      description: Get ticker for most active markets
+      operationId: api.explorer.get_ticker
       responses:
         '200':
           description: Ticker data
