@@ -312,6 +312,37 @@ paths:
       tags:
         - api
         - market
+  "/get_trade_history":
+    get:
+      description: Returns recent trades for the market assetA:assetB, ordered by time, most recent first
+      operationId: api.explorer.get_trade_history
+      parameters:
+        - in: query
+          name: base
+          default: LLC
+          type: string
+          required: true
+          description: Base asset name or ID
+        - in: query
+          name: quote
+          default: USD
+          type: string
+          required: true
+          description: Quote asset name or ID
+        - in: query
+          name: bucket
+          default: 3600
+          type: integer
+          required: true
+          description: Track market history by grouping orders into buckets of equal size measured in seconds "60,300,900,1800,3600,14400,86400"
+      responses:
+        '200':
+          description: Trades for the market assetA:assetB
+        '500':
+          description: Error processing parameters
+      tags:
+        - api
+        - market        
   "/get_volume":
     get:
       description: Get 24hs volume data for a market

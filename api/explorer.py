@@ -205,16 +205,18 @@ def get_ticker():
 	result = []
 	for pair in pairs:
 		result.append(get_market_ticker(pair[1], pair[0]))
-		
-	#asset_base = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[base], 0])[0]
-	#asset_quote = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
-	#ticker["id"] = asset_base["id"].replace("1.3.", "") + "_" + asset_quote["id"].replace("1.3.", "")
 	
 	return result
+	
+def get_trade_history(base, quote, bucket):
+	baseID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[base], 0])[0]
+	quoteID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
+	now = str( datetime.datetime.now().isoformat() )
+	
+	return bitshares_ws_client.request('history', 'get_market_history', [baseID["id"], quoteID["id"], bucket, "2019-01-01T00:00:00", now])
 
 def get_volume(base, quote):
     return bitshares_ws_client.request('database', 'get_24_volume', [base, quote])
-
 
 def get_last_network_ops():
     con = psycopg2.connect(**config.POSTGRES)
