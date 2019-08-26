@@ -312,7 +312,7 @@ paths:
       tags:
         - api
         - market        
-  "/get_ticker":
+  "/ticker":
     get:
       description: Get ticker for most active markets
       operationId: api.explorer.get_ticker

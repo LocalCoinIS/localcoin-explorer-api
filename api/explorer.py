@@ -256,7 +256,7 @@ def get_ticker():
 	
 	result = []
 	for pair in pairs:
-		result.append(get_market_ticker(pair[1], pair[0]))
+		result.append(get_market_ticker(pair[0], pair[1]))
 	
 	return result
 	
