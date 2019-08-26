@@ -354,38 +354,7 @@ paths:
           description: Error processing parameters
       tags:
         - api
-        - market       
-  "/<base>_<quote>":
-    get:
-      description: Returns recent trades for the market assetA:assetB, ordered by time, most recent first
-      operationId: api.explorer.get_trade_history2
-      parameters:
-        - in: query
-          name: base
-          default: LLC
-          type: string
-          required: true
-          description: Base asset name or ID
-        - in: query
-          name: quote
-          default: USD
-          type: string
-          required: true
-          description: Quote asset name or ID
-        - in: query
-          name: limit
-          default: 100
-          type: integer
-          required: true
-          description: Maximum 100 last operations
-      responses:
-        '200':
-          description: Trades for the market assetA:assetB
-        '500':
-          description: Error processing parameters
-      tags:
-        - api
-        - market            
+        - market
   "/get_volume":
     get:
       description: Get 24hs volume data for a market
@@ -1136,6 +1105,25 @@ paths:
       responses:
         '200':
           description: Grouped order limit book for a market
+        '500':
+          description: Error processing parameters
+      tags:
+        - api
+        - market
+  "/<base>_<quote>":
+    get:
+      description: Returns recent trades for the market assetA:assetB, ordered by time, most recent first
+      operationId: api.explorer.get_trade_history2
+      parameters:
+        - in: query
+          name: limit
+          default: 100
+          type: integer
+          required: true
+          description: Maximum 100 last operations
+      responses:
+        '200':
+          description: Trades for the market assetA:assetB
         '500':
           description: Error processing parameters
       tags:
