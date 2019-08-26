@@ -4,3 +4,4 @@ wrappers_env
 .pytest_cache
 non_reg/test_result.txt
 config.py
+.idea
