@@ -156,7 +156,7 @@ paths:
       tags:
         - api
         - account
-  "/assets":
+  "/assets_llc":
     get:
       description: Get list of assets that had volume in the last 24 hours.
       operationId: api.explorer.get_assets
@@ -168,7 +168,7 @@ paths:
       tags:
         - api
         - asset
-  "/assets_cmc":
+  "/assets":
     get:
       description: Get list of assets that had volume in the last 24 hours in cmc format.
       operationId: api.explorer.get_assets_cmc
