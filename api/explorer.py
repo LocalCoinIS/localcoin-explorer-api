@@ -110,6 +110,49 @@ def get_assets():
     con.close()
 
     return results
+	
+def _get_name_by_key(key):
+	with open('symbols.json') as json_file:
+		data = json.load(json_file)
+
+	for asset in data:
+		if key == asset['symbol']:
+			return asset['short_name']
+	
+def get_assets_cmc():
+	con = psycopg2.connect(**config.POSTGRES)
+	cur = con.cursor()
+
+	query = "SELECT * FROM assets WHERE volume > 0  ORDER BY volume DESC"
+	cur.execute(query)
+	assets = cur.fetchall()
+	con.close()
+
+	result = []
+	for asset in assets:
+		if (asset[10] is None):
+			precision = 10 ** 5
+		else:
+			precision = 10 ** asset[10]
+	
+		result.append({'db_id':asset[0],
+						'key':asset[1],
+						'id':asset[2],
+						'price':asset[3],
+						'volume':asset[4],
+						#'mounth_cap':asset[5]/precision,
+						#'type':asset[6],
+						'current_supply':float(asset[7])/precision,
+						#'holders':asset[8],
+						#'wallet_type':asset[9],
+						#'precision':asset[10],
+						'name':_get_name_by_key(asset[1]),
+						'lastUpdateTimestamp': str( datetime.datetime.now().replace(microsecond=0).isoformat() )
+						})
+	
+	#result = assets
+
+	return result
 
 
 def get_fees():
@@ -190,7 +233,16 @@ def get_market_ticker(base, quote):
 	
 	asset_base = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[base], 0])[0]
 	asset_quote = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
-	ticker["id"] = asset_base["id"].replace("1.3.", "") + "_" + asset_quote["id"].replace("1.3.", "")
+	ticker["tradeID"] = asset_base["id"].replace("1.3.", "") + "_" + asset_quote["id"].replace("1.3.", "")
+	
+	ticker["lastUpdateTimestamp"] = ticker.pop("time")
+	ticker["tradingPairs"] = ticker["base"] + "_" + ticker["quote"]
+	ticker["LastPrice"] = ticker.pop("latest")
+	ticker["lowestAsk"] = ticker.pop("lowest_ask")
+	ticker["highestBid"] = ticker.pop("highest_bid")
+	ticker["baseVolume24h"] = ticker.pop("base_volume")
+	ticker["quoteVolume24h"] = ticker.pop("quote_volume")
+	ticker["tradesEnabled"] = True
 	
 	return ticker
 
@@ -213,7 +265,25 @@ def get_trade_history(base, quote, bucket):
 	quoteID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
 	now = str( datetime.datetime.now().isoformat() )
 	
-	return bitshares_ws_client.request('history', 'get_market_history', [baseID["id"], quoteID["id"], bucket, "2019-01-01T00:00:00", now])
+	result = bitshares_ws_client.request('history', 'get_market_history', [baseID["id"], quoteID["id"], bucket, "2019-01-01T00:00:00", now])
+	
+	return list(reversed(result))
+	
+def get_trade_history2(base, quote, limit):
+	#baseID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[base], 0])[0]
+	#quoteID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
+	now = str( datetime.datetime.now().isoformat() )
+	results = bitshares_ws_client.request('database', 'get_trade_history', [base, quote, now, "2019-01-01T00:00:00", limit])
+	
+	for result in results:
+		result["time"] = result.pop("date")
+		result["marketPair"] = base + '_' + quote
+		result["tradeID"] = result.pop("sequence")
+		result["baseVolume"] = result.pop("amount")
+		result["quoteVolume"] = result.pop("value")
+		result["isBuyerMaker"] = False
+	
+	return results
 
 def get_volume(base, quote):
     return bitshares_ws_client.request('database', 'get_24_volume', [base, quote])
@@ -315,8 +385,25 @@ def _ensure_safe_limit(limit):
 def get_order_book(base, quote, limit=False):
     limit = _ensure_safe_limit(limit)    
     order_book = bitshares_ws_client.request('database', 'get_order_book', [base, quote, limit])
+	
     return order_book
 
+def get_order_book_cmc(base, quote, limit=False):
+	limit = _ensure_safe_limit(limit)    
+	order_book = bitshares_ws_client.request('database', 'get_order_book', [base, quote, limit])
+	
+	result = {	'asks': [],
+				'bids': [],
+				'LastUpdateTimestamp': str( datetime.datetime.now().replace(microsecond=0).isoformat() )
+				}
+				
+	for order in order_book['bids']:
+		result['bids'].append([order['base'], order['quote']])
+		
+	for order in order_book['asks']:
+		result['asks'].append([order['base'], order['quote']])		
+	
+	return result
 
 def get_margin_positions(account_id):
     margin_positions = bitshares_ws_client.request('database', 'get_margin_positions', [account_id])

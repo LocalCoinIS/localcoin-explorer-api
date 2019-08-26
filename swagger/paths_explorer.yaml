@@ -168,6 +168,18 @@ paths:
       tags:
         - api
         - asset
+  "/assets_cmc":
+    get:
+      description: Get list of assets that had volume in the last 24 hours in cmc format.
+      operationId: api.explorer.get_assets_cmc
+      responses:
+        '200':
+          description: List of assets with 24hs volume in cmc format
+        '500':
+          description: Error processing parameters
+      tags:
+        - api
+        - asset        
   "/fees":
     get:
       description: Get network fee data.
@@ -342,7 +354,38 @@ paths:
           description: Error processing parameters
       tags:
         - api
-        - market        
+        - market       
+  "/get_trade_history2":
+    get:
+      description: Returns recent trades for the market assetA:assetB, ordered by time, most recent first
+      operationId: api.explorer.get_trade_history2
+      parameters:
+        - in: query
+          name: base
+          default: LLC
+          type: string
+          required: true
+          description: Base asset name or ID
+        - in: query
+          name: quote
+          default: USD
+          type: string
+          required: true
+          description: Quote asset name or ID
+        - in: query
+          name: limit
+          default: 100
+          type: integer
+          required: true
+          description: Maximum 100 last operations
+      responses:
+        '200':
+          description: Trades for the market assetA:assetB
+        '500':
+          description: Error processing parameters
+      tags:
+        - api
+        - market            
   "/get_volume":
     get:
       description: Get 24hs volume data for a market
@@ -523,6 +566,37 @@ paths:
       tags:
         - api
         - market
+  "/get_order_book_cmc":
+    get:
+      description: Get the order book of a market.
+      operationId: api.explorer.get_order_book_cmc
+      parameters:
+        - in: query
+          name: base
+          default: 1.3.0
+          type: string
+          required: true
+          description: Base asset id
+        - in: query
+          name: quote
+          default: 1.3.1
+          type: string
+          required: true
+          description: Quote asset id
+        - in: query
+          name: limit
+          default: 100
+          type: integer
+          required: false
+          description: Number of records to retreive
+      responses:
+        '200':
+          description: the order book for the market
+        '500':
+          description: Error processing parameters
+      tags:
+        - api
+        - market        
   "/get_margin_positions":
     get:
       description: Get margin positions of an account.
