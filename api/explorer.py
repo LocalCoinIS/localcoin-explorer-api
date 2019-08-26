@@ -273,7 +273,7 @@ def get_trade_history2(base, quote, limit):
 	#baseID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[base], 0])[0]
 	#quoteID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
 	now = str( datetime.datetime.now().isoformat() )
-	results = bitshares_ws_client.request('database', 'get_trade_history', [base, quote, now, "2019-01-01T00:00:00", limit])
+	results = bitshares_ws_client.request('database', 'get_trade_history', [quote, base, now, "2019-01-01T00:00:00", limit])
 	
 	for result in results:
 		result["time"] = result.pop("date")
