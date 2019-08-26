@@ -1110,7 +1110,7 @@ paths:
       tags:
         - api
         - market
-  "/<base>_<quote>":
+  "/trades/<base>_<quote>":
     get:
       description: Returns recent trades for the market assetA:assetB, ordered by time, most recent first
       operationId: api.explorer.get_trade_history2
