@@ -268,22 +268,46 @@ def get_trade_history(base, quote, bucket):
 	result = bitshares_ws_client.request('history', 'get_market_history', [baseID["id"], quoteID["id"], bucket, "2019-01-01T00:00:00", now])
 	
 	return list(reversed(result))
-	
+
 def get_trade_history2(base, quote, limit):
-	#baseID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[base], 0])[0]
-	#quoteID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
+	baseID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[base], 0])[0]
+	quoteID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
+
 	now = str( datetime.datetime.now().isoformat() )
-	results = bitshares_ws_client.request('database', 'get_trade_history', [quote, base, now, "2019-01-01T00:00:00", limit])
-	
+	results = bitshares_ws_client.request('database', 'get_trade_history_full', [quote, base, now, "2019-01-01T00:00:00", limit])
+
+	#operation type 4 - fill order
 	for result in results:
+		operations = es_wrapper.get_account_history(account_id=result["side2_account_id"], operation_type=4, size=1000)
+
+		amountNeedle = str(int(str(result["value"]) .replace('.', '')))
+		quoteNeedle  = str(int(str(result["amount"]).replace('.', '')))
+
+		is_maker = True
+
+		for operation in operations:
+			if 'operation_history' in operation:
+				operationHistory = operation['operation_history']
+				if 'op' in operationHistory:
+					items = json.loads(operationHistory['op'])
+					for item in items:
+						if type(item) is not int and 'receives' in item and 'pays' in  item:
+							if str(item['receives']['amount']).find(amountNeedle) == 0 and str(item['pays']['amount']).find(quoteNeedle) == 0 and item['receives']['asset_id'] == quoteID['id'] and item['pays']['asset_id'] == baseID['id']:
+								is_maker = item['is_maker']
+
+
+		result.pop("is_maker")
+
 		result["time"] = result.pop("date")
 		result["marketPair"] = base + '_' + quote
 		result["tradeID"] = result.pop("sequence")
-		result["baseVolume"] = result.pop("amount")
-		result["quoteVolume"] = result.pop("value")
-		result["isBuyerMaker"] = False
-	
-	return results
+		result["baseVolume"] = result.pop("value")
+		result["quoteVolume"] = result.pop("amount")
+		result["isBuyerMaker"] = is_maker == False
+	        result["markets"] = get_markets(quote)
+#		result["operations"] = operations
+
+	return results	
 
 def get_volume(base, quote):
     return bitshares_ws_client.request('database', 'get_24_volume', [base, quote])
