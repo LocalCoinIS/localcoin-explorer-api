@@ -271,7 +271,7 @@ def get_market_ticker(base, quote):
 	ticker["tradeID"] = asset_base["id"].replace("1.3.", "") + "_" + asset_quote["id"].replace("1.3.", "")
 	
 	ticker["lastUpdateTimestamp"] = ticker.pop("time")
-	ticker["tradingPairs"] = ticker["base"] + "_" + ticker["quote"]
+	ticker["tradingPairs"] = ticker["quote"] + "_" + ticker["base"]
 	ticker["LastPrice"] = ticker.pop("latest")
 	ticker["lowestAsk"] = ticker.pop("lowest_ask")
 	ticker["highestBid"] = ticker.pop("highest_bid")
