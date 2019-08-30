@@ -535,29 +535,17 @@ paths:
       tags:
         - api
         - market
-  "/get_order_book_cmc":
+  "/depth/<base>_<quote>/":
     get:
       description: Get the order book of a market.
       operationId: api.explorer.get_order_book_cmc
       parameters:
         - in: query
-          name: base
-          default: 1.3.0
-          type: string
-          required: true
-          description: Base asset id
-        - in: query
-          name: quote
-          default: 1.3.1
-          type: string
-          required: true
-          description: Quote asset id
-        - in: query
           name: limit
           default: 100
           type: integer
-          required: false
-          description: Number of records to retreive
+          required: true
+          description: Maximum 100 last operations
       responses:
         '200':
           description: the order book for the market

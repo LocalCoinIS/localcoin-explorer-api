@@ -472,8 +472,11 @@ def get_order_book(base, quote, limit=False):
     return order_book
 
 def get_order_book_cmc(base, quote, limit=False):
+        baseID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[base], 0])[0]
+        quoteID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
+
 	limit = _ensure_safe_limit(limit)    
-	order_book = bitshares_ws_client.request('database', 'get_order_book', [base, quote, limit])
+	order_book = bitshares_ws_client.request('database', 'get_order_book', [baseID['id'], quoteID['id'], limit])
 	
 	result = {	'asks': [],
 				'bids': [],
