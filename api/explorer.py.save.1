@@ -7,9 +7,6 @@ from services.bitshares_websocket_client import BitsharesWebsocketClient, client
 from services.cache import cache
 import es_wrapper
 import config
-import urllib
-import sys
-from websocket import create_connection
 
 
 def get_header():
@@ -121,74 +118,42 @@ def _get_name_by_key(key):
 	for asset in data:
 		if key == asset['symbol']:
 			return asset['short_name']
-
-def get_all_assets():
-	ws = create_connection(config.WEBSOCKET_URL)
-	all_assets = []
-
-	ws.send('{"id":1, "method":"call", "params":[0,"list_assets",["AAAAA", 100]]}')
-	result = ws.recv()
-	j = json.loads(result)
-	all_assets.append(j)
-	len_result = len(j["result"])
-
-	while len_result == 100:
-		ws.send('{"id":1, "method":"call", "params":[0,"list_assets",["'+j["result"][99]["symbol"]+'", 100]]}')
-		result = ws.recv()
-		j = json.loads(result)
-		len_result = len(j["result"])
-		all_assets.append(j)
-
-	items = []
-	for asset in all_assets:
-		for item in asset["result"]:
-			items.append(item)
-
-	return items
-
-def get_gate_data():
-	url = "https://llcgateway.localcoin.is/?methodnameaction=GetAllowCurrency"
-	jsonurl = urllib.urlopen(url)
-	return json.loads(jsonurl.read())
 	
-
 def get_assets_cmc():
-	assets = get_all_assets()
-	items = []
+	con = psycopg2.connect(**config.POSTGRES)
+	cur = con.cursor()
 
-	gate_data = get_gate_data()
+	query = "SELECT * FROM assets WHERE volume > 0  ORDER BY volume DESC"
+	cur.execute(query)
+	assets = cur.fetchall()
+	con.close()
 
+	result = []
 	for asset in assets:
-		canWithdraw = "False"
-		canDeposit  = "False"
-                minWithdrawal = 0
-                maxWithdrawal = sys.maxsize
-
-
-		if gate_data is not None and 'deposit' in gate_data and 'withdraw' in gate_data:
-                	for item in gate_data['deposit']:
-				if item['asset'].upper() == asset["symbol"].upper():
-					canDeposit  = "True"
-			for item in gate_data['withdraw']:
-                                if item['asset'].upper() == asset["symbol"].upper():
-                                        canWithdraw   = "True"
-					minWithdrawal = item['minimalAmountWithdraw']
-
-		items.append({
-			"lastUpdateTimestamp": datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.000Z'),
-			"name": asset["symbol"],
-			"Unified Cryptoasset ID": asset["id"],
-			"canWithdraw": canWithdraw,
-			"canDeposit": canDeposit,
-			"minWithdrawal": minWithdrawal,
-			"maxWithdrawal": maxWithdrawal,
-			"makerFee": asset["options"]["market_fee_percent"],
-			"takerFee": asset["options"]["market_fee_percent"]
-
-		})
-
-	return items
+		if (asset[10] is None):
+			precision = 10 ** 5
+		else:
+			precision = 10 ** asset[10]
 	
+		result.append({'db_id':asset[0],
+						'key':asset[1],
+						'id':asset[2],
+						'price':asset[3],
+						'volume':asset[4],
+						#'mounth_cap':asset[5]/precision,
+						#'type':asset[6],
+						'current_supply':float(asset[7])/precision,
+						#'holders':asset[8],
+						#'wallet_type':asset[9],
+						#'precision':asset[10],
+						'name':_get_name_by_key(asset[1]),
+						'lastUpdateTimestamp': str( datetime.datetime.now().replace(microsecond=0).isoformat() )
+						})
+	
+	#result = assets
+
+	return result
+
 
 def get_fees():
     return bitshares_ws_client.get_global_properties()
@@ -308,40 +273,36 @@ def get_trade_history2(base, quote, limit):
 	baseID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[base], 0])[0]
 	quoteID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
 
+	#ticker = bitshares_ws_client.request('database', 'get_order_book', [quote, base, 50])
+	#return ticker
+
+	#orders = bitshares_ws_client.request('database', 'get_limit_orders', [quoteID["id"], baseID["id"], limit])
+	#return orders
+
+	#now = str( datetime.datetime.now().isoformat() )
+	#result = bitshares_ws_client.request('history', 'get_market_history', [baseID["id"], quoteID["id"], 86400, "2019-01-01T00:00:00", now])
+	#return result
+
+
 	now = str( datetime.datetime.now().isoformat() )
 	results = bitshares_ws_client.request('database', 'get_trade_history_full', [quote, base, now, "2019-01-01T00:00:00", limit])
 
+	#operation type 4 - fill order
+
 	for result in results:
 		operations = es_wrapper.get_account_history(account_id=result["side2_account_id"], operation_type=4, size=1000)
+		userHistory = []
+		if operations["operation_history"]
+			
 
-		amountNeedle = str(int(str(result["value"]) .replace('.', '')))
-		quoteNeedle  = str(int(str(result["amount"]).replace('.', '')))
-
-		is_maker = True
-
-		for operation in operations:
-			if 'operation_history' in operation:
-				operationHistory = operation['operation_history']
-				if 'op' in operationHistory:
-					items = json.loads(operationHistory['op'])
-					for item in items:
-						if type(item) is not int and 'receives' in item and 'pays' in  item:
-							if str(item['receives']['amount']).find(amountNeedle) == 0 and str(item['pays']['amount']).find(quoteNeedle) == 0 and item['receives']['asset_id'] == quoteID['id'] and item['pays']['asset_id'] == baseID['id']:
-								is_maker = item['is_maker']
-
-
-		if 'is_maker' in result:
-			result.pop("is_maker")
-
-		result["side1"] = get_account(result.pop("side1_account_id"))[0]["name"]
-		result["side2"] = get_account(result.pop("side2_account_id"))[0]["name"]
 		result["time"] = result.pop("date")
 		result["marketPair"] = base + '_' + quote
 		result["tradeID"] = result.pop("sequence")
 		result["baseVolume"] = result.pop("value")
 		result["quoteVolume"] = result.pop("amount")
-		result["isBuyerMaker"] = is_maker == False
+		result["isBuyerMaker"] = False #"is_maker": false,
 	        result["markets"] = get_markets(quote)
+		result["user_operations"] = operations
 
 	return results	
 
