@@ -4,9 +4,8 @@ import json
 import psycopg2
 from websocket import create_connection
 
-import api.explorer
+import api.cron_explorer
 import config
-
 
 ws = create_connection(config.WEBSOCKET_URL)
 
@@ -51,14 +50,14 @@ for row in rows:
                 id_ = all_assets[x]["result"][i]["id"]
 
                 try:
-                    data = api.explorer.get_volume(symbol, row[1])
+                    data = api.cron_explorer.get_volume(symbol, row[1])
                     volume = data["base_volume"]
                 except:
                     volume = 0
                     continue
 
                 try:
-                    data2 = api.explorer.get_market_ticker(symbol, row[1])
+                    data2 = api.cron_explorer.get_market_ticker(symbol, row[1])
                     price = data2["latest"]
                     #print price
                 except:

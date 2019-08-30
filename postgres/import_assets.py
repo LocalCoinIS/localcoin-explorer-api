@@ -4,7 +4,7 @@ import json
 import psycopg2
 from websocket import create_connection
 
-import api.explorer
+import api.cron_explorer
 import config
 
 ws = create_connection(config.WEBSOCKET_URL)
@@ -66,7 +66,7 @@ for x in range(0, len(all_assets)):
 
         precision = 5
         try:
-            data3 = api.explorer._get_asset(asset_id)
+            data3 = api.cron_explorer._get_asset(asset_id)
             current_supply = data3["current_supply"]
             precision = data3["precision"]
             #price = data3["options"]["core_exchange_rate"]["base"]["amount"]
@@ -75,7 +75,7 @@ for x in range(0, len(all_assets)):
             continue
 
         try:
-            holders = api.explorer.get_asset_holders_count(asset_id)
+            holders = api.cron_explorer.get_asset_holders_count(asset_id)
         except:
             holders = 0
             continue
@@ -89,15 +89,16 @@ for x in range(0, len(all_assets)):
         #print all_assets[x]["result"][i]
 
         try:
-            data = api.explorer.get_volume(core_symbol, symbol)
+            data = api.cron_explorer.get_volume(core_symbol, symbol)
         except:
             continue
 
         #print symbol
-        print data["quote_volume"]
+        #print data["quote_volume"]
 
         try:
-            data2 = api.explorer.get_market_ticker(core_symbol, symbol)
+            data2 = api.cron_explorer.get_market_ticker(core_symbol, symbol)
+	    #print data2
             price = data2["latest"]
             #print price
 
@@ -143,10 +144,10 @@ con.commit()
 """
 
 # insert core token manually
-data3 = api.explorer._get_asset(config.CORE_ASSET_ID)
+data3 = api.cron_explorer._get_asset(config.CORE_ASSET_ID)
 current_supply = data3["current_supply"]
 
-holders = api.explorer.get_asset_holders_count(config.CORE_ASSET_ID)
+holders = api.cron_explorer.get_asset_holders_count(config.CORE_ASSET_ID)
 
 mcap = int(current_supply)
 
@@ -156,3 +157,4 @@ con.commit()
 
 cur.close()
 con.close()
+

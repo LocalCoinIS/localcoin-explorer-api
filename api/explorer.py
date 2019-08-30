@@ -281,8 +281,31 @@ def get_market_ticker(base, quote):
 	
 	return ticker
 
-def get_ticker():
+def get_all_market_pairs():
+	pairs = {}
+	assets = get_all_assets()
 
+	for assetSide1 in assets:
+		for assetSide2 in assets:
+			if assetSide1['symbol'] != assetSide2['symbol']:
+				pair = [assetSide1['symbol'], assetSide2['symbol']]
+				pairs["_".join(pair)] = pair
+
+	return pairs
+
+def get_ticker():
+#	pairs = get_all_market_pairs()
+	
+#	brockenMarkets = 0
+#	result = []
+#	for keyPair in sorted(pairs):
+#		try:
+#			pair = pairs[keyPair]
+#			result.append(get_market_ticker(pair[0], pair[1]))
+#		except Exception:
+#			brockenMarkets = brockenMarkets + 1
+#	
+#	return result
 	markets = get_most_active_markets()
 	
 	pairs = []
