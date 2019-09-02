@@ -364,7 +364,7 @@ def get_trade_history2(base, quote, limit):
 		result["baseVolume"] = result.pop("value")
 		result["quoteVolume"] = result.pop("amount")
 		result["isBuyerMaker"] = is_maker == False
-	        result["markets"] = get_markets(quote)
+	        #result["markets"] = get_markets(quote)
 
 	return results	
 
