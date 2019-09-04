@@ -332,7 +332,7 @@ def get_trade_history2(base, quote, limit):
 	quoteID = bitshares_ws_client.request('database', 'lookup_asset_symbols', [[quote], 0])[0]
 
 	now = str( datetime.datetime.now().isoformat() )
-	results = bitshares_ws_client.request('database', 'get_trade_history_full', [quote, base, now, "2019-01-01T00:00:00", limit])
+	results = bitshares_ws_client.request('database', 'get_trade_history', [quote, base, now, "2019-01-01T00:00:00", limit])
 
 	for result in results:
 		operations = es_wrapper.get_account_history(account_id=result["side2_account_id"], operation_type=4, size=1000)
