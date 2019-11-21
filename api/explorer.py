@@ -479,15 +479,15 @@ def get_order_book_cmc(base, quote, limit=False):
 	order_book = bitshares_ws_client.request('database', 'get_order_book', [baseID['id'], quoteID['id'], limit])
 	
 	result = {	'asks': [],
-				'bids': [],
-				'LastUpdateTimestamp': str( datetime.datetime.now().replace(microsecond=0).isoformat() )
-				}
+			'bids': [],
+			'LastUpdateTimestamp': str( datetime.datetime.now().replace(microsecond=0).isoformat() )
+ 		}
 				
 	for order in order_book['bids']:
-		result['bids'].append([order['base'], order['quote']])
+		result['bids'].append([round(float(order['quote'])/float(order['base']), 8), order['base']])
 		
 	for order in order_book['asks']:
-		result['asks'].append([order['base'], order['quote']])		
+		result['asks'].append([round(float(order['quote'])/float(order['base']), 8), order['base']])		
 	
 	return result
 
