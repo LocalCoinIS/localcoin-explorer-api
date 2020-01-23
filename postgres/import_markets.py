@@ -69,7 +69,7 @@ for row in rows:
                 #    exit
 
                 # this was an attempt to sum up volume of not bts crosses to calculate total DEX volume, disabled by now(need better math to convert to bts)
-                """
+                '''
                 if float(data["base_volume"]) > 0 and float(row[3]) > 0 and row[1] != "LLC" and symbol != "LLC":
                     ws.send('{"id":1, "method":"call", "params":[0,"lookup_asset_symbols",[["' + symbol + '"], 0]]}')
                     result_l = ws.recv()
@@ -95,7 +95,7 @@ for row in rows:
                     #print query_u
                     cur.execute(query_u)
                     con.commit()
-                """
+                '''
 
                 if float(price) > 0 and float(volume) > 0:
                     query = "INSERT INTO markets (pair, asset_id, price, volume, aid) VALUES(%s, %s, %s, %s, %s)"

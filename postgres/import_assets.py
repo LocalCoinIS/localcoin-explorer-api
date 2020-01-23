@@ -12,6 +12,22 @@ ws = create_connection(config.WEBSOCKET_URL)
 con = psycopg2.connect(**config.POSTGRES)
 cur = con.cursor()
 
+#array of assets for volume
+assets_array = ["ETH", "BTC", "LTC", "XMR", "DASH", "BAT", "USDT", "LINK", "USDC", "TUSD", "USDS"]
+asset_volumes = {}
+
+#check custom volumes for our asset list pairs
+for base_asset in assets_array:
+	volume = 0
+	for quote_asset in assets_array:
+		if base_asset != quote_asset:
+			data = api.cron_explorer.get_volume(base_asset, quote_asset)
+			volume += float(data['base_volume'])
+			asset_volumes[base_asset] = volume
+	
+#print asset_volumes["ETH"]
+
+
 query = "TRUNCATE assets"
 cur.execute(query)
 
@@ -89,9 +105,14 @@ for x in range(0, len(all_assets)):
         #print all_assets[x]["result"][i]
 
         try:
-            data = api.cron_explorer.get_volume(core_symbol, symbol)
+			data = api.cron_explorer.get_volume(core_symbol, symbol)
+			if symbol in asset_volumes:
+				total = float(data['base_volume']) + asset_volumes[symbol]
+			else:
+				total = float(data['base_volume'])
         except:
             continue
+			
 
         #print symbol
         #print data["quote_volume"]
@@ -114,8 +135,10 @@ for x in range(0, len(all_assets)):
         mcap = int(current_supply) * float(price)
 
         query = "INSERT INTO assets (aname, aid, price, volume, mcap, type, current_supply, holders, wallettype, precision) VALUES({})".format(', '.join(('%s',)*10))
-        print(symbol)
-        cur.execute(query, (symbol, asset_id, price, data['base_volume'], str(mcap), type_, str(current_supply), str(holders), '', str(precision)))
+        print(symbol, total)
+        cur.execute(query, (symbol, asset_id, price, total, str(mcap), type_, str(current_supply), str(holders), '', str(precision)))
+#       cur.execute(query, (symbol, asset_id, price, data['base_volume'], str(mcap), type_, str(current_supply), str(holders), '', str(precision)))
+		
         con.commit()
 
 
@@ -157,4 +180,3 @@ con.commit()
 
 cur.close()
 con.close()
-
